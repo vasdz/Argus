@@ -89,6 +89,10 @@ text
 ---
 *Developed by [Tigers MIREA]*
 
-![Uploading image.png…]()
 
+
+
+
+
+https://github.com/user-attachments/assets/9343b936-aecc-428f-a869-1074bdeca677
 
