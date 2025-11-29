@@ -1,0 +1,11 @@
+# data_p2.yaml
+path: C:/Users/alexl/PycharmProjects/Argus/data/datasets/P2
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 2  # <--- Классов два
+
+names:
+  0: person
+  1: ignore_region # <--- ОБЯЗАТЕЛЬНО добавьте имя для класса 1

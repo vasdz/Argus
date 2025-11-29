@@ -1,0 +1,54 @@
+# Ultralytics YOLO11-P2 specific config (Small Object Detection)
+# Based on standard YOLO11 with added P2 head (Stride 4)
+
+# Parameters
+nc: 2 # измените на количество ваших классов (например, 1 для person)
+scales: # model compound scaling constants, i.e. 'n', 's', 'm', 'l', 'x'
+  n: [0.50, 0.25, 1024]
+  s: [0.50, 0.50, 1024]
+  m: [0.50, 1.00, 512]
+  l: [1.00, 1.00, 512]
+  x: [1.00, 1.50, 512]
+
+backbone:
+  # [from, repeats, module, args]
+  - [-1, 1, Conv, [64, 3, 2]]  # 0-P1/2
+  - [-1, 1, Conv, [128, 3, 2]] # 1-P2/4
+  - [-1, 2, C3k2, [256, False, 0.25]] # 2  <-- P2 Feature Map (Low Level details)
+  - [-1, 1, Conv, [256, 3, 2]] # 3-P3/8
+  - [-1, 2, C3k2, [512, False, 0.25]] # 4  <-- P3 Feature Mapц
+  - [-1, 1, Conv, [512, 3, 2]] # 5-P4/16
+  - [-1, 2, C3k2, [512, True]] # 6  <-- P4 Feature Map
+  - [-1, 1, Conv, [1024, 3, 2]] # 7-P5/32
+  - [-1, 2, C3k2, [1024, True]] # 8
+  - [-1, 1, SPPF, [1024, 5]] # 9  <-- P5 Feature Map
+
+head:
+  - [-1, 1, nn.Upsample, [None, 2, 'nearest']]
+  - [[-1, 6], 1, Concat, [1]] # cat backbone P4
+  - [-1, 2, C3k2, [512, False]] # 12
+
+  - [-1, 1, nn.Upsample, [None, 2, 'nearest']]
+  - [[-1, 4], 1, Concat, [1]] # cat backbone P3
+  - [-1, 2, C3k2, [256, False]] # 15 (P3/8-small)
+
+  # --- P2 HEAD ADDITION START ---
+  - [-1, 1, nn.Upsample, [None, 2, 'nearest']] # Upsample to P2
+  - [[-1, 2], 1, Concat, [1]] # cat backbone P2 (Layer 2)
+  - [-1, 2, C3k2, [128, False]] # 18 (P2/4-xsmall) <-- High Res Feature Map
+  # --- P2 HEAD ADDITION END ---
+
+  - [-1, 1, Conv, [256, 3, 2]] # Downsample to P3
+  - [[-1, 15], 1, Concat, [1]] # cat head P3
+  - [-1, 2, C3k2, [256, False]] # 21 (P3/8-small)
+
+  - [-1, 1, Conv, [512, 3, 2]] # Downsample to P4
+  - [[-1, 12], 1, Concat, [1]] # cat head P4
+  - [-1, 2, C3k2, [512, False]] # 24 (P4/16-medium)
+
+  - [-1, 1, Conv, [1024, 3, 2]] # Downsample to P5
+  - [[-1, 9], 1, Concat, [1]] # cat head P5
+  - [-1, 2, C3k2, [1024, True]] # 27 (P5/32-large)
+
+  # Detect output: P2(18), P3(21), P4(24), P5(27)
+  - [[18, 21, 24, 27], 1, Detect, [nc]]

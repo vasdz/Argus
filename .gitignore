@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+.env
+
+# IDE
+.idea/
+.vscode/
+
+frontend/node_modules
+
+node_modules
+# Data & Models (слишком тяжелые для GitHub)
+data/datasets/
+data/models/
+*.pt
+*.onnx
+
+# Logs & Temp
+*.log
+backend/app/temp/
