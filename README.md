@@ -88,3 +88,7 @@ text
 
 ---
 *Developed by [Tigers MIREA]*
+
+![Uploading image.png…]()
+
+
